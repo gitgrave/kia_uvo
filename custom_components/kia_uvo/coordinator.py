@@ -122,11 +122,13 @@ class HyundaiKiaConnectDataUpdateCoordinator(DataUpdateCoordinator):
             # counts unexpected exceptions and cancels the config entry after
             # enough consecutive failures, which makes all entities permanently
             # unavailable until the integration is manually reloaded.
-            # Raising UpdateFailed instead keeps entities temporarily
-            # unavailable and schedules an automatic retry on the next poll.
+            # Raising UpdateFailed(retry_after=60) keeps entities temporarily
+            # unavailable and schedules an automatic retry after 60 seconds
+            # instead of waiting for the next full poll interval.
             # See: https://github.com/Hyundai-Kia-Connect/kia_uvo/issues/1538
             raise UpdateFailed(
-                f"Token refresh failed, will retry on next poll: {err}"
+                f"Token refresh failed, will retry in 60s: {err}",
+                retry_after=60,
             ) from err
         current_hour = dt_util.now().hour
 
